@@ -1,1 +1,4 @@
 animation_manager.py
+.pio
+.vscode
+esp32-s3-zero/tft-gif-weather/include/secrets.h

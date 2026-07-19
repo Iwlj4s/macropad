@@ -1,8 +1,7 @@
-# File: volume_manager.py
 import board
 import analogio
-import usb_hid
-from adafruit_hid.consumer_control import ConsumerControl
+import time
+from kmk.keys import KC
 
 class VolumeManager:
     def __init__(self):
@@ -10,11 +9,8 @@ class VolumeManager:
         self.pot = analogio.AnalogIn(board.GP26)
         self.last_pot_value = self.pot.value
         self.pot_deadzone = 2000  # Noise filter
-        
-        # Volume Controller Windows
-        self.cc = ConsumerControl(usb_hid.devices)
 
-    def loop(self):
+    def loop(self, keyboard_instance):
         current_val = self.pot.value
         
         # If the grip is turned further than the noise filter
@@ -22,10 +18,10 @@ class VolumeManager:
             # FAST WALK: Send the command 5 times in a row in one turn!
             if current_val > self.last_pot_value:
                 for _ in range(5):
-                    self.cc.send(234)  # 234 = VOLUME_DOWN
+                    keyboard_instance.tap_key(KC.AUDIO_VOL_DOWN)	# VOLUME_DOWN
             else:
                 for _ in range(5):
-                    self.cc.send(233)  # 233 = VOLUME_UP
+                    keyboard_instance.tap_key(KC.AUDIO_VOL_UP)	# 233 = VOLUME_UP
                     
             self.last_pot_value = current_val
 
