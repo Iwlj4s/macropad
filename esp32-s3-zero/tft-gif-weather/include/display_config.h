@@ -11,7 +11,7 @@ public:
         auto cfg = _bus_instance.config();
         cfg.spi_host = SPI2_HOST;     
         cfg.spi_mode = 0;
-        cfg.freq_write = 24000000;    
+        cfg.freq_write = 60000000;    // НАШИ БОЕВЫЕ 60 МГц ИЗ monolit_working_v1!
         cfg.pin_sclk = 13;            
         cfg.pin_mosi = 12;            
         cfg.pin_miso = -1;            
