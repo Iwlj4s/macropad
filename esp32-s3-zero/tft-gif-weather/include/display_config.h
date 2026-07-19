@@ -1,5 +1,7 @@
 #ifndef DISPLAY_CONFIG_H
 #define DISPLAY_CONFIG_H
+
+#define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 
 class LGFX_SpaceCat : public lgfx::LGFX_Device {
@@ -11,7 +13,7 @@ public:
         auto cfg = _bus_instance.config();
         cfg.spi_host = SPI2_HOST;     
         cfg.spi_mode = 0;
-        cfg.freq_write = 60000000;    // НАШИ БОЕВЫЕ 60 МГц ИЗ monolit_working_v1!
+        cfg.freq_write = 60000000;    // 60Mgh
         cfg.pin_sclk = 13;            
         cfg.pin_mosi = 12;            
         cfg.pin_miso = -1;            
