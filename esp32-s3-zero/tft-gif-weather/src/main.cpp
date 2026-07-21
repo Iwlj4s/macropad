@@ -2,9 +2,11 @@
 #define LGFX_USE_V1
 #include "display_manager.h"
 #include "animations.h"
+#include "wifi_manager.h"
 
 LGFX_SpaceCat lcd;
 DisplayManager displayHelper;
+WifiManager wifiHelper;
 
 const int BTN_NEXT_PIN = 5;
 const int BTN_PREV_PIN = 6;
@@ -19,8 +21,14 @@ void setup() {
     pinMode(BTN_NEXT_PIN, INPUT_PULLUP);
     pinMode(BTN_PREV_PIN, INPUT_PULLUP);
 
+    // Display init and set anim
     displayHelper.init(lcd);
     displayHelper.setAnimation(cat_in_boat_anim, cat_in_boat_size);
+
+    delay(1000);
+    // Connect to the wifi
+    wifiHelper.connect();
+    wifiHelper.getInfo();
 }
 
 void loop() {
@@ -36,4 +44,13 @@ void loop() {
         Serial.println("PREV - ACTIVE");
         delay(250);
     }
+
+    if (wifiHelper.isConnected()) {
+        // Fetching API data
+        Serial.println("--- Wifi Connected in MAIN LOOP --- ");
+    }
+    else {
+        // Something
+    }
+
 }
