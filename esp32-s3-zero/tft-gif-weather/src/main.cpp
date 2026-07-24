@@ -85,11 +85,10 @@ void loop() {
             last_button_time = millis();
         }
 
-        // Кнопка ВПЕРЕД
         if (digitalRead(BTN_NEXT_PIN) == LOW) {
             currentAnimIndex++;
             if (currentAnimIndex >= TOTAL_ANIMS) {
-                currentAnimIndex = 0; // Зацикливаем в начало
+                currentAnimIndex = 0; 
             }
             
             displayHelper.setAnimation(animList[currentAnimIndex].data, animList[currentAnimIndex].size);

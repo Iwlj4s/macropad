@@ -3,12 +3,11 @@
 
 #include "display_config.h"
 #include <AnimatedGIF.h> 
-#include "http_manager.h"
 
 class DisplayManager {
     private:
         LGFX_SpaceCat* lcd; 
-        LGFX_Sprite weatherCanvas; 
+        LGFX_Sprite canvas; 
         AnimatedGIF gif; 
 
         const uint8_t* current_gif;
@@ -21,6 +20,7 @@ class DisplayManager {
         String cachedStatus = "Wait...";
         String cachedHum = "Hum: --%";
         String cachedWind = "WS: --m/s";
+        bool hasWeather = false;
 
     public:
         void init(LGFX_SpaceCat& targetLcd); 
@@ -31,6 +31,7 @@ class DisplayManager {
         void play();
         
         void drawWeather(String temp, String status, String hum, String wind);
+
         static void GIFDraw(GIFDRAW *pDraw);
 };
 
