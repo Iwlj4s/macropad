@@ -10,8 +10,19 @@ DisplayManager displayHelper;
 WifiManager wifiHelper;
 HTTPManager weatherHelper;
 
-LGFX_Sprite weatherSprite(&lcd); 
-String weatherText = "--.- C";
+struct AnimationItem {
+    const uint8_t* data;
+    unsigned int size;
+    const char* name;
+};
+
+AnimationItem animList[] = {
+    { cat_in_boat_anim, cat_in_boat_size, "Cat in Boat" }
+    // { cat_sleeping_anim, cat_sleeping_size, "Sleeping Cat" }, 
+    // { cat_running_anim, cat_running_size, "Running Cat" }
+};
+const int TOTAL_ANIMS = sizeof(animList) / sizeof(animList[0]);
+int currentAnimIndex = 0;
 
 const int BTN_NEXT_PIN = 5;
 const int BTN_PREV_PIN = 6;
@@ -26,50 +37,66 @@ void setup() {
     pinMode(BTN_NEXT_PIN, INPUT_PULLUP);
     pinMode(BTN_PREV_PIN, INPUT_PULLUP);
 
-    // Display init and set anim
     displayHelper.init(lcd);
-    displayHelper.setAnimation(cat_in_boat_anim, cat_in_boat_size);
+    displayHelper.setAnimation(animList[currentAnimIndex].data, animList[currentAnimIndex].size);
 
     delay(1000);
-    // Connect to the wifi
     wifiHelper.connect();
     wifiHelper.getInfo();
-
-    weatherSprite.createSprite(120, 30);
-
 }
 
 void loop() {
     displayHelper.play(); 
+    static WeatherData stableWeatherData; 
+    static bool hasFirstWeather = false;
     
     static unsigned long last_weather_update = 0;
-
+    
     if (wifiHelper.isConnected()) {
-        if (last_weather_update == 0 || (millis() - last_weather_update > 3600000)){
-            weatherText = weatherHelper.get_temp();
-            Serial.println("Temp: " + weatherText);
+        if (last_weather_update == 0 || (millis() - last_weather_update > 3600000)) {
+            WeatherData wData = weatherHelper.get_weather();
+            if (wData.valid) {
 
-            weatherSprite.fillScreen(0); 
-            weatherSprite.setCursor(0, 0);
-            weatherSprite.setTextColor(TFT_YELLOW); 
-            weatherSprite.setFont(&fonts::Font4);
-            weatherSprite.print(weatherText);
-
-            last_weather_update = millis();
-        } 
-    } 
-
-    weatherSprite.pushSprite(20, 20, 0x0000);
-
-    if (digitalRead(BTN_NEXT_PIN) == LOW){
-        displayHelper.updateButtonState(" NEXT - ACTIVE", TFT_WHITE);
-        Serial.println("NEXT - ACTIVE");
-        delay(250);
+                displayHelper.drawWeather(
+                    String(wData.temp), 
+                    String(wData.status), 
+                    String(wData.humidity), 
+                    String(wData.wind_speed)
+                );
+                last_weather_update = millis();
+            }
+        }
     }
 
-    if (digitalRead(BTN_PREV_PIN) == LOW){
-        displayHelper.updateButtonState(" PREV - ACTIVE", TFT_WHITE);
-        Serial.println("PREV - ACTIVE");
-        delay(250);
+    static unsigned long last_button_time = 0;
+    
+    if (millis() - last_button_time > 250) {
+        
+        if (digitalRead(BTN_PREV_PIN) == LOW) {
+            currentAnimIndex--;
+            if (currentAnimIndex < 0) {
+                currentAnimIndex = TOTAL_ANIMS - 1; 
+            }
+            
+            displayHelper.setAnimation(animList[currentAnimIndex].data, animList[currentAnimIndex].size);
+            displayHelper.updateButtonState(animList[currentAnimIndex].name, TFT_GREEN);
+            
+            Serial.printf("Switch to PREV anim: %s\n", animList[currentAnimIndex].name);
+            last_button_time = millis();
+        }
+
+        // Кнопка ВПЕРЕД
+        if (digitalRead(BTN_NEXT_PIN) == LOW) {
+            currentAnimIndex++;
+            if (currentAnimIndex >= TOTAL_ANIMS) {
+                currentAnimIndex = 0; // Зацикливаем в начало
+            }
+            
+            displayHelper.setAnimation(animList[currentAnimIndex].data, animList[currentAnimIndex].size);
+            displayHelper.updateButtonState(animList[currentAnimIndex].name, TFT_WHITE);
+            
+            Serial.printf("Switch to NEXT anim: %s\n", animList[currentAnimIndex].name);
+            last_button_time = millis();
+        }
     }
 }

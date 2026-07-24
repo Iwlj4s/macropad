@@ -3,17 +3,15 @@
 
 static lgfx::LGFX_Device* global_lcd = nullptr;
 
+static String gTemp = "--.-C", gStatus = "Wait...", gHum = "Hum: --%", gWind = "WS: --m/s";
+
 void DisplayManager::init(LGFX_SpaceCat& targetLcd) {
     lcd = &targetLcd;
     global_lcd = lcd;
     
     lcd->init();
     lcd->setRotation(1); 
-    
     gif.begin(GIF_PALETTE_RGB565_BE); 
-    
-    current_gif = nullptr;
-    current_size = 0;
 }
 
 void DisplayManager::showReadyScreen() {
@@ -35,15 +33,10 @@ void DisplayManager::setAnimation(const uint8_t* gif_array, unsigned int gif_siz
     current_gif = gif_array;
     current_size = gif_size;
     lcd->fillScreen(0x780F); 
-    
     gif.close(); 
     
     if (current_gif != nullptr && current_size > 0) {
-        if (gif.openFLASH((uint8_t *)current_gif, (int)current_size, GIFDraw)) {
-            Serial.println("GIF successfully opened!");
-        } else {
-            Serial.println("Opening GIF Error!");
-        }
+        gif.openFLASH((uint8_t *)current_gif, (int)current_size, GIFDraw);
     }
 }
 
@@ -71,18 +64,35 @@ void DisplayManager::GIFDraw(GIFDRAW *pDraw) {
         }
         global_lcd->pushImage(iX, iY, iWidth, 1, line_buffer);
     }
+
+    if (pDraw->y == pDraw->iHeight - 1) {
+        
+        global_lcd->setTextColor(TFT_WHITE); 
+        
+        global_lcd->setFont(&fonts::Font4);
+        global_lcd->setCursor(10, 10); 
+        global_lcd->print(gTemp);
+
+        global_lcd->setCursor(10, 40);  global_lcd->print(gStatus);
+        global_lcd->setCursor(10, 70);  global_lcd->print(gHum);
+        global_lcd->setCursor(10, 100); global_lcd->print(gWind);
+    }
 }
 
 void DisplayManager::play() {
     if (current_gif != nullptr && current_size > 0) {
-        int delay_ms = 0;
-        
-        if (!gif.playFrame(true, &delay_ms)) {
-            gif.reset(); 
-        }
-        
-        if (delay_ms > 0) {
-            delay(delay_ms);
+        if (millis() - last_frame_time >= next_frame_delay) {
+            if (!gif.playFrame(true, &next_frame_delay)) {
+                gif.reset(); 
+            }
+            last_frame_time = millis();
         }
     }
+}
+
+void DisplayManager::drawWeather(String temp, String status, String hum, String wind) {
+    gTemp = temp;
+    gStatus = status;
+    gHum = hum;
+    gWind = wind;
 }
