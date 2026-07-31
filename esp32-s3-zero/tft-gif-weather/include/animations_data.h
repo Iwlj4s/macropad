@@ -1,5 +1,5 @@
-#ifndef ANIMATIONS_H
-#define ANIMATIONS_H
+#ifndef ANIMATIONS_DATA_H
+#define ANIMATIONS_DATA_H
 #include <Arduino.h>
 
 const uint8_t cat_in_boat_anim[] PROGMEM = {
@@ -21651,10 +21651,9 @@ const uint8_t cat_in_boat_anim[] PROGMEM = {
 0xED, 0x3F, 0xF8, 0x22, 0x1A, 0x1D, 0xEF, 0x68, 0x1D, 0xA7, 0x80, 0xD2, 0xDD, 0x89, 0x0C, 0x98, 
 0xDF, 0x3E, 0x93, 0x14, 0x76, 0xC1, 0x6A, 0xAC, 0x08, 0x08, 0x00, 0x3B
 };
-
-
 const unsigned int cat_in_boat_size = sizeof(cat_in_boat_anim);
 
-const uint8_t space_star_anim[] PROGMEM = {0x47, 0x49, 0x46, 0x38 };
-const unsigned int space_star_size = sizeof(space_star_anim);
+// const uint8_t cat_fire_anim[] PROGMEM = 
+// unsigned int cat_fire_size = sizeof(cat_fire_anim);
+
 #endif

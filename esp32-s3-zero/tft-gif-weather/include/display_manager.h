@@ -28,9 +28,11 @@ class DisplayManager {
         void updateButtonState(const char* StateText, uint16_t color);
 
         void setAnimation(const uint8_t* gif_array, unsigned int gif_size);
-        void play();
+        void play(const String& timeStr);
         
-        void drawWeather(String temp, String status, String hum, String wind);
+        void setWeather(String temp, String status, String hum, String wind);
+        void drawWeather();
+        void drawSystemTime(const String& timeStr);
 
         static void GIFDraw(GIFDRAW *pDraw);
 };

@@ -8,6 +8,9 @@ class WifiManager {
     private:
         const char *ssid = WIFI_SSID;
         const char *password = WIFI_PASS;
+        
+        const char* ntpServer = "pool.ntp.org";
+        const char* timeZone  = "MSK-3"; 
 
     public:
         void connect();

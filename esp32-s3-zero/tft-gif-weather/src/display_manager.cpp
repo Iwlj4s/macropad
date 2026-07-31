@@ -51,6 +51,7 @@ void DisplayManager::setAnimation(const uint8_t* gif_array, unsigned int gif_siz
     if (current_gif != nullptr && current_size > 0) {
         if (gif.openFLASH((uint8_t *)current_gif, (int)current_size, GIFDraw)) {
             Serial.println("GIF successfully opened!");
+            Serial.println("---------------------------\n");
         }
     }
 }
@@ -82,7 +83,56 @@ void DisplayManager::GIFDraw(GIFDRAW *pDraw) {
     }
 }
 
-void DisplayManager::play() {
+void DisplayManager::drawSystemTime(const String& timeStr) {
+    canvas.setTextColor(TFT_WHITE);
+    canvas.setFont(&fonts::FreeMonoBold12pt7b); 
+    canvas.setTextSize(1.0);
+    
+    canvas.setCursor(240, 10); 
+    canvas.print(timeStr); 
+}
+
+void DisplayManager::drawWeather() {
+    canvas.setTextColor(TFT_WHITE); 
+    // Good fonts:
+    // 1. &fonts::FreeMonoBold9pt7b
+    // 2. &fonts::FreeMonoBoldOblique9pt7b
+    canvas.setFont(&fonts::FreeMonoBoldOblique9pt7b); 
+
+    // --- 1. Temp ---
+    canvas.drawBitmap(10, 12, icon_thermometer, 16, 16, TFT_WHITE);
+    canvas.setTextSize(1.2); 
+    canvas.setCursor(32, 10);
+    canvas.print(cachedTemp);
+
+    canvas.setTextSize(1.0); 
+
+    // --- 2. Weather Status (sunny, cloudy, e.t.c) ---
+    const uint8_t* statusIcon = icon_status_cloud; 
+    if (cachedStatus.equalsIgnoreCase("Clear")) {
+        statusIcon = icon_status_sun;
+    } else if (cachedStatus.equalsIgnoreCase("Rain") || 
+                cachedStatus.equalsIgnoreCase("Drizzle") || 
+                cachedStatus.equalsIgnoreCase("Thunderstorm")) {
+        statusIcon = icon_status_rain;
+    }
+    
+    canvas.drawBitmap(10, 42, statusIcon, 16, 16, TFT_WHITE);
+    canvas.setCursor(32, 40);
+    canvas.print(cachedStatus);
+
+    // --- 3. Wind Speed ---
+    canvas.drawBitmap(10, 72, icon_wind, 16, 16, TFT_WHITE);
+    canvas.setCursor(32, 70);
+    canvas.print(cachedWind);
+
+    // --- 4. Humidity ---
+    canvas.drawBitmap(10, 102, icon_drop, 16, 16, TFT_WHITE);
+    canvas.setCursor(32, 100);
+    canvas.print(cachedHum);
+}
+
+void DisplayManager::play(const String& timeStr) {
     if (current_gif != nullptr && current_size > 0) {
         if (millis() - last_frame_time >= (unsigned long)next_frame_delay) {
             
@@ -92,44 +142,10 @@ void DisplayManager::play() {
             last_frame_time = millis();
 
             if (hasWeather) {
-                canvas.setTextColor(TFT_WHITE); 
-                // Good fonts:
-                // 1. &fonts::FreeMonoBold9pt7b
-                // 2. &fonts::FreeMonoBoldOblique9pt7b
-                canvas.setFont(&fonts::FreeMonoBoldOblique9pt7b); 
-
-                // --- 1. Temp ---
-                canvas.drawBitmap(10, 12, icon_thermometer, 16, 16, TFT_WHITE);
-                canvas.setTextSize(1.2); 
-                canvas.setCursor(32, 10);
-                canvas.print(cachedTemp);
-
-                canvas.setTextSize(1.0); 
-
-                // --- 2. Weather Status (sunny, cloudy, e.t.c) ---
-                const uint8_t* statusIcon = icon_status_cloud; 
-                if (cachedStatus.equalsIgnoreCase("Clear")) {
-                    statusIcon = icon_status_sun;
-                } else if (cachedStatus.equalsIgnoreCase("Rain") || 
-                           cachedStatus.equalsIgnoreCase("Drizzle") || 
-                           cachedStatus.equalsIgnoreCase("Thunderstorm")) {
-                    statusIcon = icon_status_rain;
-                }
-                
-                canvas.drawBitmap(10, 42, statusIcon, 16, 16, TFT_WHITE);
-                canvas.setCursor(32, 40);
-                canvas.print(cachedStatus);
-
-                // --- 3. Wind Speed ---
-                canvas.drawBitmap(10, 72, icon_wind, 16, 16, TFT_WHITE);
-                canvas.setCursor(32, 70);
-                canvas.print(cachedWind);
-
-                // --- 4. Humidity ---
-                canvas.drawBitmap(10, 102, icon_drop, 16, 16, TFT_WHITE);
-                canvas.setCursor(32, 100);
-                canvas.print(cachedHum);
+                drawWeather();
             }
+
+            drawSystemTime(timeStr);
 
             // 3.Button Status
             if (millis() < buttonTextExpireTime && currentButtonText != "") {
@@ -145,9 +161,7 @@ void DisplayManager::play() {
     }
 }
 
-
-
-void DisplayManager::drawWeather(String temp, String status, String hum, String wind) {
+void DisplayManager::setWeather(String temp, String status, String hum, String wind) {
     cachedTemp = temp;
     cachedStatus = status;
     cachedHum = hum;
