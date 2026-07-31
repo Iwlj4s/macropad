@@ -17,9 +17,6 @@ TimeManager timeHelper;
 WeatherManager weatherHelper;
 AnimationsManager animHelper;
 
-const int BTN_NEXT_PIN = 5;
-const int BTN_PREV_PIN = 6;
-
 void setup() {
     delay(2000);
     Serial.begin(115200);
