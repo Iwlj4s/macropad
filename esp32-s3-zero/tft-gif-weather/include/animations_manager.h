@@ -13,8 +13,8 @@ struct AnimationItem {
 class AnimationsManager {
     private:
         inline static const AnimationItem animList[] = {
+            { cat_fire_anim, cat_fire_size, "Cat near campfire"},
             { cat_in_boat_anim, cat_in_boat_size, "Cat in Boat" }
-            // { cat_fire_anim, cat_fire_size, "Cat near campfire"}
         };
 
     public:

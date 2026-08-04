@@ -18,7 +18,7 @@ WeatherManager weatherHelper;
 AnimationsManager animHelper;
 
 void setup() {
-    delay(2000);
+    delay(2000); // Даем питанию стабилизироваться
     Serial.begin(115200);
 
     Serial.println("=========================================");
@@ -32,6 +32,8 @@ void setup() {
     AnimationItem activeAnim = animHelper.get_currentAnimation();
 
     displayHelper.init(lcd);
+    
+    displayHelper.updateButtonState(activeAnim.name, TFT_WHITE);
     displayHelper.setAnimation(activeAnim.data, activeAnim.size);
 
     delay(1000);
